@@ -27,19 +27,25 @@ async function run () {
         });
         app.get ('/inventory/:_id',  async(req,res)=>{
             const id = req.params._id
-            console.log(id)
             const query = {_id:ObjectId(id)}
             const inventory = await inventoryCollection.findOne(query)
             res.send(inventory);
         }) ;  
-        
+      //post  
         app.post('/inventory', async (req,res) => {
             const newInventory = req.body;
-            
             const result = await inventoryCollection.insertOne(newInventory);
             res.send(result);
             
         });
+    //delete
+        app.delete('/inventory/:_id',  async(req,res)=>{
+            const id = req.params._id
+            const query = {_id:ObjectId(id)}
+            const result = await inventoryCollection.deleteOne(query);
+            res.send(result);
+
+        })
        
         
 
