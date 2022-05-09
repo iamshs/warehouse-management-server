@@ -55,7 +55,21 @@ async function run() {
       res.send(inventory);
     });
 
-    
+   //restock
+   
+   app.put('/motor/:_id', async (req, res) => {
+    const id = req.params._id
+    const newQuantity = req.body
+    const filter = { _id: ObjectId(id) }
+    const options = { upsert: true }
+    const doc = {
+        $set: {
+            quantity: newQuantity.quantity
+        }
+    }
+    const result = await inventoryCollection.updateOne(filter, doc, options)
+    res.send(result)
+})
 
     //post
     app.post("/inventory", async (req, res) => {
