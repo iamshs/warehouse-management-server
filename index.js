@@ -18,6 +18,7 @@ async function run () {
     try{
         await client.connect()
         const inventoryCollection =client.db('motorHouse').collection('inventory')
+        const myCollection =client.db('motorHouse').collection('myitem')
 
         app.get('/inventory',async(req,res)=>{
             const query ={}
@@ -46,8 +47,14 @@ async function run () {
             res.send(result);
 
         })
-       
-        
+    
+     //my item post
+     
+     app.post('/myitem' , async(req,res)=>{
+        const newInventory = req.body;
+        const result = await myCollection.insertOne(newInventory);
+        res.send(result);
+     })
 
     }
 
