@@ -17,6 +17,24 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
+
+
+function verifyJWT(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).send({ message: "unauthorized access" });
+    }
+    const token = authHeader.split(" ")[1];
+    jwt.verify(token, process.env.SECRET_TOKEN, (err, decoded) => {
+      if (err) {
+        return res.status(403).send({ message: "Forbidden access" });
+      }
+     
+      req.decoded = decoded;
+      next();
+    });
+  }
+
 async function run() {
   try {
     await client.connect();
@@ -29,6 +47,7 @@ async function run() {
       const inventories = await cursor.toArray();
       res.send(inventories);
     });
+
     app.get("/inventory/:_id", async (req, res) => {
       const id = req.params._id;
       const query = { _id: ObjectId(id) };
@@ -36,21 +55,7 @@ async function run() {
       res.send(inventory);
     });
 
-    function verifyJWT(req, res, next) {
-      const authHeader = req.headers.authorization;
-      if (!authHeader) {
-        return res.status(401).send({ message: "unauthorized access" });
-      }
-      const token = authHeader.split(" ")[1];
-      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-        if (err) {
-          return res.status(403).send({ message: "Forbidden access" });
-        }
-        console.log("decoded", decoded);
-        req.decoded = decoded;
-        next();
-      });
-    }
+    
 
     //post
     app.post("/inventory", async (req, res) => {
@@ -74,12 +79,19 @@ async function run() {
       });
     });
     //my item get
-    app.get("/myitem", async (req, res) => {
-      const email = req.query.email;
-      const query = { email: email };
-      const cursor = myCollection.find(query);
-      const items = await cursor.toArray();
-      res.send(items);
+    app.get("/myitem",verifyJWT, async (req, res) => {
+        const decodedEmail = req.decoded.email;
+            const email = req.query.email;
+            if (email === decodedEmail) {
+                const query = { email: email };
+                const cursor = myCollection.find(query);
+                const items = await cursor.toArray();
+                 res.send(items);
+            }
+            else{
+                res.status(403).send({message: 'forbidden access'})
+            }
+  
     });
 
     //my item post
