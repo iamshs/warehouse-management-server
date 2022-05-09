@@ -46,7 +46,15 @@ async function run () {
             const result = await inventoryCollection.deleteOne(query);
             res.send(result);
 
-        })
+        });
+         //my item get
+     app.get('/myitem',async(req,res)=>{
+        const email = req.query.email
+       const query ={email:email}
+       const cursor = myCollection.find(query)
+       const items = await cursor.toArray();
+       res.send(items)
+   });
     
      //my item post
      
