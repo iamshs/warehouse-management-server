@@ -83,14 +83,17 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const result = await inventoryCollection.deleteOne(query);
       res.send(result);
-      // AUTH
-      app.post("/login", async (req, res) => {
-        const user = req.body;
-        const accessToken = jwt.sign(user, process.env.SECRET_TOKEN, {
-          expiresIn: "10d",
-        });
-        res.send({ accessToken });
+     
+    });
+     // AUTH
+    app.post("/login", async (req, res) => {
+     
+      const user = req.body;
+      const accessToken = await jwt.sign(user, process.env.SECRET_TOKEN, {
+        expiresIn: "10d",
       });
+     
+      res.send({ accessToken });
     });
     //my item get
     app.get("/myitem",verifyJWT, async (req, res) => {
