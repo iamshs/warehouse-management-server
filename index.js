@@ -25,8 +25,10 @@ function verifyJWT(req, res, next) {
       return res.status(401).send({ message: "unauthorized access" });
     }
     const token = authHeader.split(" ")[1];
+    console.log(token)
     jwt.verify(token, process.env.SECRET_TOKEN, (err, decoded) => {
       if (err) {
+        console.log(err)
         return res.status(403).send({ message: "Forbidden access" });
       }
      
@@ -71,6 +73,21 @@ async function run() {
     res.send(result)
 })
 
+//delivered
+   app.put('/motor/:_id', async (req, res) => {
+    const id = req.params._id
+    const newQuantity = req.body
+    const filter = { _id: ObjectId(id) }
+    const options = { upsert: true }
+    const doc = {
+        $set: {
+            quantity: newQuantity.quantity
+        }
+    }
+    const result = await inventoryCollection.updateOne(filter, doc, options)
+    res.send(result)
+})
+
     //post
     app.post("/inventory", async (req, res) => {
       const newInventory = req.body;
@@ -99,6 +116,7 @@ async function run() {
     app.get("/myitem",verifyJWT, async (req, res) => {
         const decodedEmail = req.decoded.email;
             const email = req.query.email;
+            console.log(email,decodedEmail)
             if (email === decodedEmail) {
                 const query = { email: email };
                 const cursor = myCollection.find(query);
